@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Web App & APK
 
 on:
   push:
@@ -13,22 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Setup Java JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Create Capacitor Project
+      - name: Install Android SDK & Capacitor
         run: |
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Trading Journal" "com.trading.journal" --web-dir .
+          npx cap init "Trading Journal" "com.trading.journal" --web-dir . --no-interactive
           npx cap add android
           npx cap sync android
 
@@ -36,7 +31,7 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
