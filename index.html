@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="om" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Journal Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased pb-12">
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                    Trading Journal Pro
+                </h1>
+            </div>
+            <button onclick="exportToCSV()" class="text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-download"></i> CSV Export
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="bg-slate-800/60 border border-slate-800 rounded-xl p-4">
+                <span class="text-xs font-medium text-slate-400 block mb-1">Daily P&L</span>
+                <span id="stat-daily" class="text-lg sm:text-xl font-bold">$0.00</span>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-800 rounded-xl p-4">
+                <span class="text-xs font-medium text-slate-400 block mb-1">Weekly P&L</span>
+                <span id="stat-weekly" class="text-lg sm:text-xl font-bold">$0.00</span>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-800 rounded-xl p-4">
+                <span class="text-xs font-medium text-slate-400 block mb-1">Monthly P&L</span>
+                <span id="stat-monthly" class="text-lg sm:text-xl font-bold">$0.00</span>
+            </div>
+            <div class="bg-slate-800/60 border border-slate-800 rounded-xl p-4">
+                <span class="text-xs font-medium text-slate-400 block mb-1">Total P&L</span>
+                <span id="stat-net" class="text-lg sm:text-xl font-bold">$0.00</span>
+            </div>
+            <div class="col-span-2 md:col-span-1 bg-slate-800/60 border border-slate-800 rounded-xl p-4">
+                <span class="text-xs font-medium text-slate-400 block mb-1">Win Rate</span>
+                <span id="stat-winrate" class="text-lg sm:text-xl font-bold text-indigo-400">0%</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 bg-slate-800/80 border border-slate-800 rounded-xl p-5 shadow-lg">
+                <h2 class="text-base font-semibold mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-indigo-400"></i> Trade Haarawa Galmeessi
+                </h2>
+                <form id="tradeForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="tradeId">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">Guyyaa</label>
+                            <input type="date" id="tradeDate" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">Pair</label>
+                            <input type="text" id="tradePair" placeholder="EUR/USD" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 uppercase">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">Gosa</label>
+                            <select id="tradeType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100">
+                                <option value="LONG">LONG</option>
+                                <option value="SHORT">SHORT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">P&L ($)</label>
+                            <input type="number" step="0.01" id="tradePnl" placeholder="100 ykn -50" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+                        <textarea id="tradeNotes" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100"></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg transition text-sm">
+                        Galmeessi
+                    </button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 bg-slate-800/80 border border-slate-800 rounded-xl p-4">
+                    <h3 class="text-sm font-semibold text-slate-300 mb-2">Equity Curve</h3>
+                    <div class="relative h-60 w-full"><canvas id="equityChart"></canvas></div>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-800 rounded-xl p-4">
+                    <h3 class="text-sm font-semibold text-slate-300 mb-2">Win / Loss</h3>
+                    <div class="relative h-60 w-full flex items-center justify-center"><canvas id="winLossChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800/80 border border-slate-800 rounded-xl p-5 shadow-lg">
+            <h2 class="text-base font-semibold mb-4">Seenaa Trade-otaa</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/60 text-xs text-slate-400 uppercase">
+                        <tr>
+                            <th class="py-3 px-4">Guyyaa</th>
+                            <th class="py-3 px-4">Pair</th>
+                            <th class="py-3 px-4">Type</th>
+                            <th class="py-3 px-4">P&L ($)</th>
+                            <th class="py-3 px-4">Notes</th>
+                            <th class="py-3 px-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradeTableBody" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let trades = JSON.parse(localStorage.getItem('trading_journal_trades')) || [];
+        let equityChart = null, winLossChart = null;
+        document.getElementById('tradeDate').valueAsDate = new Date();
+
+        function saveTrades() { localStorage.setItem('trading_journal_trades', JSON.stringify(trades)); }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const date = document.getElementById('tradeDate').value;
+            const pair = document.getElementById('tradePair').value.toUpperCase().trim();
+            const type = document.getElementById('tradeType').value;
+            const pnl = parseFloat(document.getElementById('tradePnl').value);
+            const notes = document.getElementById('tradeNotes').value.trim();
+
+            trades.push({ id: Date.now().toString(), date, pair, type, pnl, notes });
+            saveTrades();
+            document.getElementById('tradeForm').reset();
+            document.getElementById('tradeDate').valueAsDate = new Date();
+            renderApp();
+        }
+
+        function deleteTrade(id) {
+            trades = trades.filter(t => t.id !== id);
+            saveTrades();
+            renderApp();
+        }
+
+        function renderApp() {
+            renderStats();
+            renderTable();
+            renderCharts();
+        }
+
+        function renderStats() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay());
+
+            const dailyPnl = trades.filter(t => t.date === todayStr).reduce((s, t) => s + t.pnl, 0);
+            const weeklyPnl = trades.filter(t => new Date(t.date) >= startOfWeek).reduce((s, t) => s + t.pnl, 0);
+            const monthlyPnl = trades.filter(t => new Date(t.date).getMonth() === now.getMonth()).reduce((s, t) => s + t.pnl, 0);
+            const netPnl = trades.reduce((s, t) => s + t.pnl, 0);
+            const wins = trades.filter(t => t.pnl > 0).length;
+            const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(1) : '0';
+
+            setStat('stat-daily', dailyPnl);
+            setStat('stat-weekly', weeklyPnl);
+            setStat('stat-monthly', monthlyPnl);
+            setStat('stat-net', netPnl);
+            document.getElementById('stat-winrate').innerText = `${winRate}%`;
+        }
+
+        function setStat(id, val) {
+            const el = document.getElementById(id);
+            el.innerText = `$${val.toFixed(2)}`;
+            el.className = `text-lg sm:text-xl font-bold ${val >= 0 ? 'text-emerald-400' : 'text-rose-500'}`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tradeTableBody');
+            if (trades.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">Trade-iin hin jiru.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = [...trades].reverse().map(t => `
+                <tr>
+                    <td class="py-3 px-4 text-xs">${t.date}</td>
+                    <td class="py-3 px-4 font-bold">${t.pair}</td>
+                    <td class="py-3 px-4">${t.type}</td>
+                    <td class="py-3 px-4 font-bold ${t.pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">$${t.pnl.toFixed(2)}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400">${t.notes || '-'}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="deleteTrade('${t.id}')" class="text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCharts() {
+            const sorted = [...trades].sort((a,b) => new Date(a.date) - new Date(b.date));
+            let cum = 0;
+            const labels = [], data = [];
+            sorted.forEach(t => { cum += t.pnl; labels.push(t.date); data.push(cum); });
+
+            if (equityChart) equityChart.destroy();
+            equityChart = new Chart(document.getElementById('equityChart'), {
+                type: 'line',
+                data: { labels, datasets: [{ data, borderColor: '#6366f1', fill: false }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const wins = trades.filter(t => t.pnl > 0).length;
+            const losses = trades.filter(t => t.pnl < 0).length;
+            if (winLossChart) winLossChart.destroy();
+            winLossChart = new Chart(document.getElementById('winLossChart'), {
+                type: 'doughnut',
+                data: { labels: ['Win', 'Loss'], datasets: [{ data: [wins, losses], backgroundColor: ['#10b981', '#f43f5e'] }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function exportToCSV() {
+            let csv = "Date,Pair,Type,P&L,Notes\n";
+            trades.forEach(t => csv += `"${t.date}","${t.pair}","${t.type}",${t.pnl},"${t.notes||''}"\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = window.URL.createObjectURL(blob);
+            a.download = 'trades.csv';
+            a.click();
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
