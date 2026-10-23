@@ -13,14 +13,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Android APK
-        uses: subhash-subu/web-to-apk-action@v1.1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          app-name: 'Trading Journal Pro'
-          web-url: 'https://raw.githack.com/${{ github.repository }}/main/index.html'
+          node-version: 20
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Create Capacitor Project
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "Trading Journal" "com.trading.journal" --web-dir .
+          npx cap add android
+          npx cap sync android
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Trading-Journal-APK
-          path: './*.apk'
+          path: android/app/build/outputs/apk/debug/app-debug.apk
